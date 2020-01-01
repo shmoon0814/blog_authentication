@@ -47,7 +47,6 @@ public class JwtUsernamePasswordAuthenticationFilter extends AbstractAuthenticat
         User u = new User();
         u.setUsername(id);
         u.setPassword(pw);
-        //User u = mapper.readValue(req.getInputStream(), User.class);
         return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(
                 u.getUsername(), u.getPassword(), Collections.emptyList()
         ));
@@ -56,8 +55,6 @@ public class JwtUsernamePasswordAuthenticationFilter extends AbstractAuthenticat
     @Override
     protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse rsp, FilterChain chain,
                                             Authentication auth) {
-
-        System.out.println(config.toString());
 
         Instant now = Instant.now();
         String token = Jwts.builder()

@@ -5,7 +5,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;import org.springframework.security.config.annotation.web.builders.WebSecurity;import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;import org.springframework.security.crypto.factory.PasswordEncoderFactories;import org.springframework.security.crypto.password.PasswordEncoder;import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;import javax.servlet.http.HttpServlet;import javax.servlet.http.HttpServletResponse;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;import org.springframework.security.crypto.password.PasswordEncoder;import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;import javax.servlet.http.HttpServlet;import javax.servlet.http.HttpServletResponse;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
@@ -18,13 +20,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
         return new JwtAuthenticationConfig();
     }
 
+    @Bean
+    PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    @Autowired
+    UserDetailsServiceImpl userDetailsService;
+
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception{
-        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-
-        auth.inMemoryAuthentication()
-                .withUser("admin").password(encoder.encode("admin")).roles("ADMIN", "USER").and()
-                .withUser("shmoon").password(encoder.encode("shmoon")).roles("USER");
+        auth.userDetailsService(userDetailsService);
+//        auth.inMemoryAuthentication()
+//                .withUser("admin").password(passwordEncoder.encode("admin")).roles("ADMIN", "USER").and()
+//                .withUser("shmoon").password(passwordEncoder.encode("shmoon")).roles("USER");
     }
 
     @Override
@@ -46,6 +58,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
                 .antMatchers(config.getUrl()).permitAll()
                 .antMatchers("/swagger-ui.html").permitAll()
                 .antMatchers("/v2/api-docs").permitAll()
+                .antMatchers("/auth/v1/join").permitAll()
                 .anyRequest().authenticated();
     }
 
