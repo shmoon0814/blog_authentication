@@ -20,8 +20,7 @@ public final class JwtAuthenticationConfig {
     @Value("${security.jwt.expiration:#{24*60*60}}")
     private int expiration; // default 24 hours
 
-    //TODO jwt secret 프로퍼티 파일로 변경해서 올려야한다
-    @Value("${security.jwt.secret:12345}")
+    @Value("${security.jwt.secret}")
     private String secret;
 
 }
