@@ -20,7 +20,7 @@ public class AuthenticationService {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    public ResponseEntity join(String email, String nick_name ,  String password, UserGrant user_grant){
+    public ResponseEntity join(String email, String nick_name ,  String password, UserGrant user_grant, String blog_name){
         Members members = memberRepository.findByEmail(email);
 
         if(members != null){
@@ -32,43 +32,9 @@ public class AuthenticationService {
         create.setNick_name(nick_name);
         create.setPassword(passwordEncoder.encode(password));
         create.setUser_grant(user_grant);
-
-        System.out.println(create);
+        create.setBlog_name(blog_name);
 
         return new ResponseEntity(memberRepository.save(create), HttpStatus.OK);
     }
-//
-//    public ResponseEntity login(String email, String pw){
-//        Members members = memberRepository.findByEmail(email);
-//
-//        if(members == null){
-//            return new ResponseEntity(ReturnCode.n_exist_email, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//        String password = members.getPassword();
-//
-//        if(passwordEncoder.matches(pw, password)){
-//            Map<String, Object> token_map = new HashMap<>();
-//
-//            String access_token = jwtTokenUtil.doGenerateToken(user);
-//            String refresh_token = jwtTokenUtil.generateRefreshToken();
-//
-//            token_map.put("access_token", access_token);
-//            token_map.put("refresh_token", refresh_token);
-//
-//            checkUser.setRefresh_token(refresh_token);
-//            userRepository.save(checkUser);
-//
-//            LoginHistory loginHistory = new LoginHistory();
-//            loginHistory.setTime(Main.getTime());
-//            loginHistory.setUser_id(checkUser.getId());
-//            loginHistoryRepository.save(loginHistory);
-//
-//            return new Result(200, token_map, null);
-//        }else{
-//            return new Result(427, null, "Password is Wrong");
-//        }
-//
-//        return new ResponseEntity(HttpStatus.OK);
-//    }
 
 }

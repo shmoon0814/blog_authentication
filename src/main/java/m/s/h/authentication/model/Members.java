@@ -27,6 +27,7 @@ public class Members {
     private String email;
     private String nick_name;
     private String password;
+    private String blog_name;
     @CreationTimestamp
     private Timestamp created_at;
     @UpdateTimestamp
