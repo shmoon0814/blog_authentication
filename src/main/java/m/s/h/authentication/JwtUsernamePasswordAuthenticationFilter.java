@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Getter;
 import lombok.Setter;
+import m.s.h.authentication.repository.MemberRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,12 +27,14 @@ public class JwtUsernamePasswordAuthenticationFilter extends AbstractAuthenticat
 
     private final JwtAuthenticationConfig config;
     private final ObjectMapper mapper;
+    private final MemberRepository memberRepository;
 
-    public JwtUsernamePasswordAuthenticationFilter(JwtAuthenticationConfig config, AuthenticationManager authManager){
+    public JwtUsernamePasswordAuthenticationFilter(JwtAuthenticationConfig config, AuthenticationManager authManager, MemberRepository memberRepository){
         super(new AntPathRequestMatcher(config.getUrl(), "POST"));
         setAuthenticationManager(authManager);
         this.config = config;
         this.mapper = new ObjectMapper();
+        this.memberRepository = memberRepository;
     }
 
     @Override
@@ -40,9 +43,6 @@ public class JwtUsernamePasswordAuthenticationFilter extends AbstractAuthenticat
 
         String id = req.getParameter("username");
         String pw = req.getParameter("password");
-
-        System.out.println(id);
-        System.out.println(pw);
 
         User u = new User();
         u.setUsername(id);
@@ -55,12 +55,11 @@ public class JwtUsernamePasswordAuthenticationFilter extends AbstractAuthenticat
     @Override
     protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse rsp, FilterChain chain,
                                             Authentication auth) {
-
         Instant now = Instant.now();
         String token = Jwts.builder()
                 .setSubject(auth.getName())
-                .claim("authorities", auth.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                .claim("authorities", auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                .claim("user_id", memberRepository.findByEmail(auth.getName()).getId())
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(now.plusSeconds(config.getExpiration())))
                 .signWith(SignatureAlgorithm.HS256, config.getSecret().getBytes())

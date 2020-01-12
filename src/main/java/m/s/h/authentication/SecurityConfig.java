@@ -1,5 +1,6 @@
 package m.s.h.authentication;
 
+import m.s.h.authentication.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,14 +18,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     private JwtAuthenticationConfig config;
     private PasswordEncoder passwordEncoder;
     private UserDetailsServiceImpl userDetailsService;
-
+    private MemberRepository memberRepository;
     @Autowired
-    public SecurityConfig(JwtAuthenticationConfig config, PasswordEncoder passwordEncoder, UserDetailsServiceImpl userDetailsService){
+    public SecurityConfig(JwtAuthenticationConfig config, PasswordEncoder passwordEncoder, UserDetailsServiceImpl userDetailsService, MemberRepository memberRepository){
         this.config = config;
         this.passwordEncoder = passwordEncoder;
         this.userDetailsService = userDetailsService;
+        this.memberRepository = memberRepository;
     }
-
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception{
@@ -44,7 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
                 .exceptionHandling().authenticationEntryPoint(
                 (req, rsp, e) -> rsp.sendError(HttpServletResponse.SC_UNAUTHORIZED))
                 .and()
-                .addFilterAfter(new JwtUsernamePasswordAuthenticationFilter(config, authenticationManager()),
+                .addFilterAfter(new JwtUsernamePasswordAuthenticationFilter(config, authenticationManager(), this.memberRepository),
                         UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers(config.getUrl()).permitAll()
