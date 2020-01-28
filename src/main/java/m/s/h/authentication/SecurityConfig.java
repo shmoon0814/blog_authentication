@@ -45,6 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
                 .exceptionHandling().authenticationEntryPoint(
                 (req, rsp, e) -> rsp.sendError(HttpServletResponse.SC_UNAUTHORIZED))
                 .and()
+                .addFilterBefore(new CsrfHeaderFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(new JwtUsernamePasswordAuthenticationFilter(config, authenticationManager(), this.memberRepository),
                         UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
