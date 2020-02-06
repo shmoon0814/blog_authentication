@@ -14,11 +14,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthenticationService {
 
-    @Autowired
     MemberRepository memberRepository;
+    PasswordEncoder passwordEncoder;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    public AuthenticationService(MemberRepository memberRepository, PasswordEncoder passwordEncoder){
+        this.memberRepository = memberRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public ResponseEntity getUserIdByDisplay_name(String display_name){
+        return new ResponseEntity(memberRepository.findByDisplay_name(display_name).getId(), HttpStatus.OK);
+    }
 
     public ResponseEntity join(String email, String nick_name ,  String password, UserGrant user_grant, String blog_name){
         Members members = memberRepository.findByEmail(email);

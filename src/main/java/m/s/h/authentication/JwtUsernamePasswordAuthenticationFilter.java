@@ -6,6 +6,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Getter;
 import lombok.Setter;
 import m.s.h.authentication.repository.MemberRepository;
+import org.json.JSONObject;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -64,7 +65,15 @@ public class JwtUsernamePasswordAuthenticationFilter extends AbstractAuthenticat
                 .setExpiration(Date.from(now.plusSeconds(config.getExpiration())))
                 .signWith(SignatureAlgorithm.HS256, config.getSecret().getBytes())
                 .compact();
-        rsp.addHeader(config.getHeader(), config.getPrefix() + " " + token);
+
+        try{
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("Shmoon_Token", config.getPrefix() + " " + token);
+            rsp.getWriter().write(jsonObject.toString());
+        }catch (IOException e){
+
+        }
+
     }
 
     @Getter

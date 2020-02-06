@@ -36,4 +36,5 @@ public class Members {
 
     @Enumerated(EnumType.STRING)
     private UserGrant user_grant;
+    private String display_name;
 }
